@@ -1,0 +1,18 @@
+.card {
+  background-color: var(--color-card-bg);
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+.card:hover {
+  background-color: var(--color-card-hover-bg);
+  transform: translateY(-2px);
+}
+
+.card-tag {
+  background-color: var(--color-card-tag-bg);
+  color: var(--color-card-tag-text);
+  border-radius: 0.5rem;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.85rem;
+}

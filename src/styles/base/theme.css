@@ -1,0 +1,83 @@
+:root {
+  /* Background colors */
+  --color-background-primary: #F0F4FF;
+  --color-background-secondary: #FFFFFF;
+  --color-background-tertiary: #E4E8F7;
+
+  /* Text colors */
+  --color-text-primary: #0A1F44;
+  --color-text-secondary: #5B6C8F;
+  --color-text-placeholder: #6C7B95;
+  --color-text-on-primary: #ffffff;
+  --color-text-inverse: #ffffff;
+
+  /* Border colors */
+  --color-border-primary: #D1D9E6;
+  --color-border-secondary: #E4E8F7;
+
+  /* Buttons */
+  --color-button-primary-bg: #0056D2;
+  --color-button-primary-hover-bg: #0041A8;
+  --color-button-secondary-bg: #D9E4FF;
+  --color-button-secondary-hover-bg: #BFD0FF;
+  --color-button-primary-active-bg: #00306b;
+
+  /* Cards */
+  --color-card-bg: #FFFFFF;
+  --color-card-hover-bg: #F8FAFF;
+  --color-card-tag-bg: #E4E8F7;
+  --color-card-tag-text: #0A1F44;
+
+  /* Form */
+  --color-form-focus-ring: var(--color-button-primary-hover-bg);
+
+  /* CTA buttons */
+  --color-cta-bg: #0066FF;
+  --color-cta-text: #ffffff;
+  --color-cta-hover-bg: #004ECC;
+
+  /* Danger / error */
+  --color-danger: #e53e3e;
+  --color-danger-hover: #c53030;
+}
+
+/* Dark theme overrides */
+html[data-theme="dark"] {
+  --color-background-primary: #1A1B1E;       /* Soft dark gray */
+  --color-background-secondary: #2C2D31;
+  --color-background-tertiary: #35363B;
+
+  --color-text-primary: #EAEAEA;
+  --color-text-secondary: #A6A8AB;
+  --color-text-placeholder: #8E9093;
+  --color-text-on-primary: #ffffff;
+  --color-text-inverse: #1A1B1E;
+
+  --color-border-primary: #3E3F44;
+  --color-border-secondary: #4A4B50;
+
+  /* Buttons - Blue tone for dark mode */
+  --color-button-primary-bg: #3B82F6;
+  --color-button-primary-hover-bg: #2563EB;
+  --color-button-secondary-bg: #3E3F44;
+  --color-button-secondary-hover-bg: #4A4B50;
+  --color-button-primary-active-bg: #1e40af;
+
+  /* Cards */
+  --color-card-bg: #2C2D31;
+  --color-card-hover-bg: #35363B;
+  --color-card-tag-bg: #3E3F44;
+  --color-card-tag-text: #EAEAEA;
+
+  /* Form */
+  --color-form-focus-ring: var(--color-button-primary-hover-bg);
+
+  /* CTA buttons */
+  --color-cta-bg: #3B82F6;
+  --color-cta-text: #ffffff;
+  --color-cta-hover-bg: #2563EB;
+
+  /* Danger / error */
+  --color-danger: #f56565;
+  --color-danger-hover: #e53e3e;
+}

@@ -1,0 +1,110 @@
+/* exactly your original sidebar.css - do NOT change widths, transitions or layout in CSS */
+
+.sidebar {
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.03);
+  backdrop-filter: blur(6px);
+  border-radius: 0.75rem;
+  border: 1px solid rgba(0, 86, 179, 0.05);
+  transition: width 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  width: 5%;
+}
+
+.sidebar.open {
+  width: 288px;
+}
+
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 100%;
+    height: 100px;
+    border-radius: 0;
+  }
+  .sidebar.open {
+    height: 100vh;
+    width: 100%;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.03);
+    backdrop-filter: blur(6px);
+    border-radius: 0;
+    border: 1px solid rgba(0, 86, 179, 0.05);
+  }
+}
+
+.header {
+  padding: 0.75rem;
+  gap: 2rem;
+  border-bottom: 1px solid var(--color-button-bg);
+  display: flex;
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .header {
+    flex-direction: column;
+    gap: 0rem;
+  }
+  .open .header {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 1024px) {
+  .header {
+    padding: 1rem;
+  }
+}
+
+.sidebar-toggle {
+  border: 1px solid var(--color-button-primary-bg);
+  border-radius: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  background: transparent;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 1024px) {
+  .sidebar-toggle {
+    background: var(--color-background-tertiary);
+  }
+}
+
+.sidebar-toggle:hover,
+.sidebar-toggle:focus-visible {
+  background-color: var(--color-button-primary-bg);
+}
+
+.sidebar-toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(30, 144, 255, 0.5);
+}
+
+.sidebar-toggle:active {
+  background-color: var(--color-button-primary-active-bg);
+}
+
+.company-name {
+  font-size: 1.875rem;
+  font-weight: 600;
+  max-width: 0;
+  opacity: 0;
+  transition: max-width 0.3s ease, opacity 0.3s ease;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.company-name-open {
+  max-width: 500px;
+  opacity: 1;
+}
+
+html[data-theme="dark"] .sidebar {
+  background: linear-gradient(135deg, hsla(223, 57%, 19%, 0.85), hsla(222, 83%, 11%, 0.85));
+  border-color: var(--color-border-primary);
+}

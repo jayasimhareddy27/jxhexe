@@ -1,0 +1,17 @@
+{
+  "extends": "./.wxt/tsconfig.json",
+  "compilerOptions": {
+    "allowJs": true,           // Allows JS files to be imported
+    "paths": {
+      "@app/*":["./src/app/*"],
+      "@features/*": ["./src/features/*"],
+      "@types/*": ["./src/types/*"],
+      "@entrypoints/*": ["./entrypoints/*"],
+      "@/*": ["./src/*"]
+    },
+    "types": ["chrome", "node"],
+
+    "allowImportingTsExtensions": true,
+    "jsx": "react-jsx"
+  }
+}

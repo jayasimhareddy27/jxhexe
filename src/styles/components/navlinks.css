@@ -1,0 +1,81 @@
+.nav-container {
+  padding: 1rem;
+  flex: 1; /* fills remaining space */
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  max-height: 100%; /* allows collapsing */
+}
+
+@media (min-width: 1024px) {
+  .nav-container {
+    display: flex;
+  }
+}
+
+.nav-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-item {
+  margin: 0.5rem 0;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.nav-link:hover {
+  background-color: var(--color-card-tag-bg);
+  color: var(--color-card-tag-text);
+}
+
+.nav-link.active {
+  background-color: var(--color-button-primary-bg);
+  color: var(--color-text-on-primary);
+  font-weight: 700;
+  box-shadow: 0 0 8px var(--color-button-primary-bg);
+}
+
+.nav-icon {
+  flex-shrink: 0;
+}
+
+.nav-text {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: 0;
+  opacity: 0;
+  margin-left: 0;
+  transition: max-width 0.3s ease, opacity 0.3s ease, margin-left 0.3s ease;
+}
+
+.nav-text.nav-text-open {
+  max-width: 500px;
+  opacity: 1;
+  margin-left: 0.5rem;
+}
+
+.user-badge {
+  margin: 1rem 0;
+  padding: 0.5rem;
+}
+
+.user-badge-content {
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.25rem;
+  background-color: var(--color-background-tertiary);
+  border-radius: 0.5rem;
+  color: var(--color-text-primary);
+  user-select: none;
+}

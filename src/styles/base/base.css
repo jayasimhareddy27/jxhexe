@@ -1,0 +1,15 @@
+body {
+  background-color: var(--color-background-primary);
+  color: var(--color-text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.shadow-modal {
+  box-shadow: 0 4px 10px rgba(0, 91, 187, 0.1),
+  0 2px 5px rgba(30, 144, 255, 0.08);
+  border-radius: 0.75rem;
+  backdrop-filter: blur(8px);
+  border: 1px solid hsla(212, 100%, 50%, 0.05);
+}
+
+

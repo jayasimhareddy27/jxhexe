@@ -1,0 +1,29 @@
+.loading-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--color-background-primary);
+  animation: fadeOut 0.5s ease-in forwards;
+  animation-delay: 1.5s;
+  z-index: 1000;
+}
+.loader {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+}
+.letter {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--color-text-primary);
+  animation: letterFade 1.2s ease-in-out infinite;
+}
+@keyframes letterFade {
+  0%, 100% { opacity: 0.3; transform: translateY(5px); }
+  50% { opacity: 1; transform: translateY(0); }
+}
