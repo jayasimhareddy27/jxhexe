@@ -7,7 +7,7 @@ export default defineConfig({
     name: 'JXH AI Job Assistant',
     description: 'Scrape jobs, tailor resume, auto-fill applications',
     version: '1.0.0',
-    permissions: ['storage', 'activeTab', 'scripting',],
+    permissions: ['storage', 'activeTab', 'scripting','tabs'],
     action: {}, // This allows the icon to be clicked
     host_permissions: ['<all_urls>'],
   },

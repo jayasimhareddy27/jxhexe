@@ -17,7 +17,7 @@ export default function ToastPersistence() {
   return (
     <div
       className={`
-        fixed top-4 left-1/2 transform -translate-x-1/2
+        fixed bottom-4 left-1/2 transform -translate-x-1/2
         text-white
         px-5 py-3 rounded-md shadow-lg z-50
         font-medium text-sm select-none

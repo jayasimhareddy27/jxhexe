@@ -1,6 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { displayToast } from "../toast/thunks";
 import { fetchJobPhaseData } from "./";
+import { BackendURL } from "../../../utils";
 
 /* =====================================================
     AI EXTRACTION
@@ -8,7 +9,7 @@ import { fetchJobPhaseData } from "./";
 export const fetchAIdata_job = createAsyncThunk(
   "jobs/fetchAIdata_job",
   async (
-    { phase, jobDescription, aiAgentConfig },
+    { phase, jobDescription },
     { dispatch, rejectWithValue }
   ) => {
     try {
@@ -16,19 +17,10 @@ export const fetchAIdata_job = createAsyncThunk(
         throw new Error("Please paste a job description first");
       }
 
-      if (
-        !aiAgentConfig?.provider ||
-        !aiAgentConfig?.model ||
-        !aiAgentConfig?.ApiKey
-      ) {
-        throw new Error("Please configure an AI agent in settings");
-      }
-
       const data = await fetchJobPhaseData(
         phase.id,
         phase.key,
         jobDescription,
-        aiAgentConfig,
         !!phase.arrayFieldKey
       );
 
@@ -46,7 +38,7 @@ export const fetchAIdata_job = createAsyncThunk(
     } catch (error) {
       dispatch(
         displayToast({
-          message: `AI Extraction failed: ${error.message}`,
+          message: `AI Extraction failed at ${phase.title}: ${error.message}, `,
           type: "error",
         })
       );
@@ -91,7 +83,7 @@ export const createJob = createAsyncThunk(
     try {
       const token = getState().auth.token;
 
-      const response = await fetch("/api/jobs", {
+      const response = await fetch(`${BackendURL}/api/jobs`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

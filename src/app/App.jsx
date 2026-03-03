@@ -9,6 +9,7 @@ export default function App() {
   const currentTheme = useSelector((state) => state.theme.theme); 
   const dbTheme = useSelector((state) => state.auth.references?.theme);
 
+
   // Sync the theme to the DOM
   useEffect(() => {
     const themeToApply = dbTheme || currentTheme || 'light';

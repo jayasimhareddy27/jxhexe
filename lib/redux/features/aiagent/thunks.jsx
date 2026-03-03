@@ -1,31 +1,26 @@
-import { api_Gemini, api_HuggingFaceai, api_Ollama } from './utils';
-import {createAsyncThunk} from '@reduxjs/toolkit';
+import { createAsyncThunk } from '@reduxjs/toolkit';
+import { ChromeAI } from "@langchain/community/experimental/llms/chrome_ai";
+
 // --- ASYNC THUNK ---
 
 export const connectAiAgent = createAsyncThunk(
   'aiAgent/connect',
-  async (config, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      const { provider, model, ApiKey } = config;
-      const prompt = 'return integer only: 2+2=?';
-      let response;
+      const model = new ChromeAI({
+        temperature: 0.5,
+        topK: 40,
+      });
 
-      if (provider === 'Gemini') {
-        response = await api_Gemini(prompt, model, ApiKey);
-        if (!response) throw new Error('Connection failed. Check API key.');
-      } else if (provider === 'HuggingFace') {
-        response = await api_HuggingFaceai(prompt, model, ApiKey);
-        if (response != 4) throw new Error('API returned no response. Check model or key.');
-      } else if (provider === 'Ollama') {
-        response = await api_Ollama(prompt, ApiKey, model);
-        if (!response) throw new Error('No response from local Ollama server.');
-      } else {
-        throw new Error('Unsupported AI provider.');
+      const testResponse = await model.invoke('return the number 4 only');
+      if (!testResponse) {
+        throw new Error('Local AI via LangChain failed to respond.');
       }
       
-      // If successful, return the config to be saved in the state
-      return config;
+      return { status: 'connected', model: 'Gemini Nano' };
+      
     } catch (error) {
+      // Catch specific LangChain or Browser errors
       return rejectWithValue(error.message);
     }
   }

@@ -1,9 +1,9 @@
 export const aiKeys = {
   gemini: [
-    process.env.NEXT_PUBLIC_GEMINI_API_KEY,
+    "AIzaSyBfPm1E7FCJzXKCF44mw_6IQJSsWs6TLX8",
   ],
   huggingFace: [
-    process.env.NEXT_PUBLIC_HF_API_KEY_1,
-    process.env.NEXT_PUBLIC_HF_API_KEY_2,
+    "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",
+    "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",
   ],
 };

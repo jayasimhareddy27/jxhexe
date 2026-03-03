@@ -8,7 +8,7 @@ import toastReducer from './features/toast/slice';
 import jobReducer from './features/job/slice';
 //
 import resumecrudReducer from './features/resumes/resumecrud/slice';
-//import coverlettercrudReducer from './features/coverletter/coverlettercrud/slice';
+import coverlettercrudReducer from './features/coverletter/coverlettercrud/slice';
 //
 import editorReducer from './features/editor/slice';
 //import followUpReducer from './features/followup/slice';
@@ -33,7 +33,7 @@ export const makeStore = () => {
       theme: themeReducer,
       toast: toastReducer, 
       jobsStore: jobReducer,
-      //coverlettercrud: coverlettercrudReducer,
+      coverlettercrud: coverlettercrudReducer,
       //followupstore: followUpReducer, 
     },
     // 2. Add the logger to the default middleware

@@ -8,9 +8,11 @@ export const fetchResumes = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem("token");
+      
       const response = await fetch(`${Companybackend}resume`, {
         headers: { Authorization: `Bearer ${token}` }
       });
+      
       if (!response.ok) throw new Error('Failed to fetch resumes');
       return await response.json();
     } catch (error) {
@@ -58,7 +60,7 @@ export const makePrimaryResume = createAsyncThunk(
   async (resumeId, { dispatch, rejectWithValue }) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("/api/userreferences", {
+      const response = await fetch(`${Companybackend}userreferences`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -83,7 +85,7 @@ export const markAIPrimaryResume = createAsyncThunk(
   async (resumeId, { dispatch, rejectWithValue }) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("/api/userreferences", {
+      const response = await fetch(`${Companybackend}userreferences`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -108,7 +110,7 @@ export const markProfileResume = createAsyncThunk(
   async (resumeId, { dispatch, rejectWithValue }) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("/api/userreferences", {
+      const response = await fetch(`${Companybackend}userreferences`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -136,7 +138,7 @@ export const markPrimaryResumeTemplate = createAsyncThunk(
   async (favResumeTemplateId, { dispatch, rejectWithValue }) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("/api/userreferences", {
+      const response = await fetch(`${Companybackend}userreferences`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -166,7 +168,7 @@ export const returnuseReference = createAsyncThunk(
   'resumes/resumecrud/returnuseReference',
   async (token, { dispatch, rejectWithValue }) => {
     try {
-      const response = await fetch(`${Companybackend}/userreferences/`, {
+      const response = await fetch(`${Companybackend}userreferences/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!response.ok) throw new Error('Failed to fetch user references');

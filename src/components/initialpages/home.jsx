@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import ScrapeTab from '../tabs/scrapetab';
-import QATab from '../tabs/QAtab';
+import AutoFillPanel from '../tabs/autofill';
 import ProfileTab from '../tabs/profiletab';
+import AIConnectionFloating from "../initialpages/aiconnection";
 
 export default function Homepage() {
   const [activeTab, setActiveTab] = useState(1);
 
   const tabs = [
     { id: 1, label: 'Scrape', component: <ScrapeTab /> },
-    { id: 2, label: 'Q&A', component: <QATab /> },
+    { id: 2, label: 'Q&A', component: <AutoFillPanel /> },
     { id: 3, label: 'Profile', component: <ProfileTab /> }
   ];
 
@@ -34,6 +35,8 @@ export default function Homepage() {
       <main className="flex-1 overflow-y-auto custom-scrollbar bg-[var(--color-background-primary)]">
         {tabs.find(tab => tab.id === activeTab)?.component}
       </main>
+<AIConnectionFloating/>    
+
     </div>
   );
 }

@@ -6,49 +6,27 @@ import { sanitizeJobData } from "../../../lib/redux/features/job/index";
 import { displayToast } from "../../../lib/redux/features/toast/thunks";
 import { executeJobDiscovery } from "../jobextractionutils/jobservice";
 import { lazyDescriptionExtractor, analyzeJobInsights } from "../jobextractionutils/utils"; 
-import { 
-  Save, Loader2, MapPin, DollarSign, ClipboardList, RefreshCw, 
-  Square, Zap, Info, Calendar, Briefcase, Star, FileText, Wand2, Target, BookmarkCheck
-} from "lucide-react";
-import { fetchCoverletters } from "../../../lib/redux/features/coverletter/coverlettercrud/thunks";
-import { fetchResumes, returnuseReference } from "../../../lib/redux/features/resumes/resumecrud/thunks";
-
-
+import { Save, Loader2, MapPin, DollarSign, ClipboardList, RefreshCw, Square, Zap, Info, Calendar, Briefcase, Star } from "lucide-react";
 
 export default function CreateJobPage() {
   const dispatch = useDispatch();
   const hasInitialized = useRef(false);
   const abortControllerRef = useRef(null);
 
-  // --- REDUX DATA (From your Inspector logic) ---
-  const { allResumes = [],myProfileRef } = useSelector((state) => state.resumecrud || {});
-  const { allCoverletters = [] } = useSelector((state) => state.coverlettercrud || {});
   const { loading, aiAgent } = useSelector((state) => ({  loading: state.jobsStore.loading,  aiAgent: state.aiAgent }), shallowEqual);
-  
-  // --- UI & EXTRACTION STATE ---
+
   const [isExtracting, setIsExtracting] = useState(false);
   const [isLazyLoading, setIsLazyLoading] = useState(false);
   const [flashDeepData, setFlashDeepData] = useState(false);
 
-  // --- JOB DATA STATE ---
   const [jobData, setJobData] = useState({
     companyName: "", position: "", rawDescription: "", aiDescription: "", stage: "saved", 
     seniorityLevel: "", jobType: "Not Mentioned", 
     requirements: [], perks: [], businessModel: "Not Mentioned", companyInsights: "",
     minSalary: "", maxSalary: "", currency: "USD", period: "yearly",
-    jobUrl: "", jobLocation: "", postedDate: new Date().toISOString().split('T')[0],
-    resumeId: "", coverLetterId: "", resumeMatchScore: 82 // Mock score or initial calc
+    jobUrl: "", jobLocation: "", postedDate: new Date().toISOString().split('T')[0]
   });
 
-  
-  useEffect(() => {
-    dispatch(fetchCoverletters());
-    dispatch(fetchResumes());
-    
-  }, [dispatch]);
-  console.log(myProfileRef);
-  
-  // Handlers
   const handleStop = () => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -68,12 +46,14 @@ export default function CreateJobPage() {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       if (!tab?.id || signal.aborted) return;
 
+      // --- PASS 1: Metadata ---
       const payload = await executeJobDiscovery(tab);
       if (signal.aborted) return;
       const sanitized = sanitizeJobData(payload);
-      setJobData(prev => ({ ...prev, ...sanitized }));
+      setJobData(sanitized);
       setIsExtracting(false);
 
+      // --- PASS 2 & 3: Parallel Background Tasks ---
       setIsLazyLoading(true);
       const [rewrittenDescription, insights] = await Promise.all([
         lazyDescriptionExtractor(tab, signal),
@@ -92,10 +72,12 @@ export default function CreateJobPage() {
           requirements: insights?.requirements || prev.requirements,
           perks: insights?.perks || prev.perks
         }));
+        
         setFlashDeepData(true);
         setTimeout(() => setFlashDeepData(false), 800);
       }
       setIsLazyLoading(false);
+
     } catch (err) {
       if (err.name === 'AbortError') return;
       dispatch(displayToast({ message: "Extraction failed", type: 'error' }));
@@ -114,7 +96,9 @@ export default function CreateJobPage() {
 
   const handleSubmit = async (e) => {
     if (e) e.preventDefault(); 
+    // Strip UI-only fields to match Mongoose Schema
     const { minSalary, maxSalary, currency, period, ...restOfJobData } = jobData;
+
     try {
       await dispatch(createJob(restOfJobData)).unwrap();
       dispatch(displayToast({ message: `Saved Successfully!`, type: 'success' }));
@@ -124,73 +108,20 @@ export default function CreateJobPage() {
     }
   };
 
+
   const isAnyLoading = isExtracting || isLazyLoading;
 
   return (
     <div className="h-full flex flex-col bg-white overflow-hidden text-slate-900 shadow-xl border-x border-slate-200">
-      <main className="flex-1 overflow-y-auto p-4 space-y-5 pb-20 custom-scrollbar">
+      <main className="flex-1 overflow-y-auto p-4 space-y-4 pb-20">
         
-        {/* HEADER & ATS SCORE */}
-        <section className="p-3 rounded-2xl border-2 border-slate-100 bg-slate-50/30 flex justify-between items-start gap-4">
-          <div className="flex-1 min-w-0">
-            <input className="w-full text-lg font-black outline-none bg-transparent truncate" placeholder="Company" value={jobData.companyName} onChange={e => setJobData({...jobData, companyName: e.target.value})} />
-            <input className="w-full text-xs font-bold text-indigo-600 outline-none uppercase tracking-tight bg-transparent truncate" placeholder="Position" value={jobData.position} onChange={e => setJobData({...jobData, position: e.target.value})} />
-          </div>
-          <div className="flex flex-col items-center justify-center px-3 py-1.5 bg-emerald-50 border border-emerald-100 rounded-xl shrink-0">
-             <div className="flex items-center gap-1 text-emerald-600">
-                <Target size={14} className={isAnyLoading ? "animate-spin" : ""} />
-                <span className="text-[14px] font-black leading-none">{jobData.resumeMatchScore}%</span>
-             </div>
-             <span className="text-[7px] font-bold text-emerald-700/60 uppercase tracking-tighter">ATS Score</span>
-          </div>
+        {/* Core Info */}
+        <section className="p-3 rounded-2xl border-2 border-slate-100 bg-slate-50/30">
+          <input className="w-full text-lg font-black outline-none bg-transparent" placeholder="Company" value={jobData.companyName} onChange={e => setJobData({...jobData, companyName: e.target.value})} />
+          <input className="w-full text-xs font-bold text-indigo-600 outline-none uppercase tracking-tight bg-transparent" placeholder="Position" value={jobData.position} onChange={e => setJobData({...jobData, position: e.target.value})} />
         </section>
 
-        {/* DOCUMENT SELECTION (From Inspector) */}
-        <section className="space-y-3">
-          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-             <BookmarkCheck size={12}/> Attach Documents
-          </label>
-          
-          <div className="space-y-2">
-            {/* Resume Dropdown */}
-            <div className="flex gap-2">
-              <div className="flex-1 relative bg-slate-50 border border-slate-100 rounded-xl p-2 transition-all hover:border-indigo-200">
-                <label className="text-[8px] font-black text-slate-400 block uppercase mb-1">Select Resume</label>
-                <select 
-                  className="w-full text-[11px] font-bold outline-none bg-transparent text-slate-700 cursor-pointer"
-                  value={jobData.resumeId}
-                  onChange={(e) => setJobData({...jobData, resumeId: e.target.value})}
-                >
-                  <option value="">No Resume Linked</option>
-                  {allResumes.map(r => <option key={r._id} value={r._id}>{r.name}</option>)}
-                </select>
-              </div>
-              <button className="px-3 bg-indigo-50 text-indigo-600 rounded-xl border border-indigo-100 flex items-center justify-center active:scale-90 transition-transform">
-                <Wand2 size={14} />
-              </button>
-            </div>
-
-            {/* Cover Letter Dropdown */}
-            <div className="flex gap-2">
-              <div className="flex-1 relative bg-slate-50 border border-slate-100 rounded-xl p-2 transition-all hover:border-indigo-200">
-                <label className="text-[8px] font-black text-slate-400 block uppercase mb-1">Select Cover Letter</label>
-                <select 
-                  className="w-full text-[11px] font-bold outline-none bg-transparent text-slate-700 cursor-pointer"
-                  value={jobData.coverLetterId}
-                  onChange={(e) => setJobData({...jobData, coverLetterId: e.target.value})}
-                >
-                  <option value="">No Cover Letter Linked</option>
-                  {allCoverletters.map(c => <option key={c._id} value={c._id}>{c.name || c.title}</option>)}
-                </select>
-              </div>
-              <button className="px-3 bg-slate-50 text-slate-600 rounded-xl border border-slate-100 flex items-center justify-center active:scale-90 transition-transform">
-                <FileText size={14} />
-              </button>
-            </div>
-          </div>
-        </section>
-
-        {/* INSIGHTS & METADATA */}
+        {/* Deep Insights Row */}
         <div className={`grid grid-cols-2 gap-2 transition-all duration-500 ${flashDeepData ? 'scale-[1.02]' : 'scale-100'}`}>
             <div className={`p-2 rounded-xl border transition-all ${flashDeepData ? 'border-indigo-400 bg-indigo-50 shadow-sm' : 'bg-slate-50 border-slate-100'}`}>
                 <label className="text-[8px] font-black text-slate-400 flex items-center gap-1 uppercase"><Zap size={8}/> Seniority</label>
@@ -207,7 +138,7 @@ export default function CreateJobPage() {
             </div>
         </div>
 
-        {/* COMPENSATION */}
+        {/* Compensation Section */}
         <section className="space-y-1.5">
           <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5"><DollarSign size={12}/> Compensation</label>
           <div className="grid grid-cols-4 gap-2">
@@ -236,23 +167,36 @@ export default function CreateJobPage() {
           </div>
         </section>
 
-        {/* DESCRIPTION AREA */}
-        <section className="space-y-1.5 relative">
-          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-              <ClipboardList size={12}/> The Gist
-              {isLazyLoading && <Loader2 size={10} className="animate-spin text-indigo-500 ml-auto" />}
-          </label>
-          <textarea 
-              className={`w-full h-32 text-[12px] leading-relaxed text-slate-600 outline-none resize-none bg-slate-50 p-3 rounded-xl transition-all duration-500 
-              ${isLazyLoading ? 'opacity-50' : 'opacity-100'}
-              ${flashDeepData ? 'ring-2 ring-indigo-400 bg-indigo-50' : 'ring-0'}`} 
-              value={jobData.rawDescription} 
-              onChange={e => setJobData({...jobData, rawDescription: e.target.value})} 
-          />
-        </section>
+        {/* Requirements & Tags */}
+        <div className="flex flex-wrap gap-1.5">
+            {jobData.requirements?.length > 0 ? jobData.requirements.slice(0, 8).map((req, i) => (
+                <span key={i} className="text-[9px] font-bold px-2 py-1 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-lg">{req}</span>
+            )) : <span className="text-[9px] text-slate-300 italic">No requirements identified yet.</span>}
+        </div>
 
-        {/* FOOTER METADATA */}
-        <div className="grid grid-cols-2 gap-2">
+        {/* AI Summary & Insights */}
+        <section className="space-y-4">
+          <div className="space-y-1.5 relative">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                <ClipboardList size={12}/> The Gist
+                {isLazyLoading && <Loader2 size={10} className="animate-spin text-indigo-500 ml-auto" />}
+            </label>
+            <textarea 
+                className={`w-full h-36 text-[12px] leading-relaxed text-slate-600 outline-none resize-none bg-slate-50 p-3 rounded-xl transition-all duration-500 
+                ${isLazyLoading ? 'opacity-50' : 'opacity-100'}
+                ${flashDeepData ? 'ring-2 ring-indigo-400 bg-indigo-50' : 'ring-0'}`} 
+                value={jobData.rawDescription} 
+                onChange={e => setJobData({...jobData, rawDescription: e.target.value})} 
+            />
+          </div>
+          
+          <div className={`p-3 rounded-xl border transition-all duration-500 ${flashDeepData ? 'bg-amber-50 border-amber-300 shadow-md' : 'bg-slate-50 border-slate-100'}`}>
+             <label className="text-[8px] font-black text-amber-500 uppercase flex items-center gap-1 mb-1"><Info size={10}/> Company Insights & Perks</label>
+             <p className="text-[10px] text-slate-600 italic leading-relaxed mb-2">{jobData.companyInsights || "Waiting for scan..."}</p>
+             <p className="text-[10px] text-emerald-600 font-medium">✨ {Array.isArray(jobData.perks) ? jobData.perks.join(", ") : jobData.perks}</p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
             <div className="bg-slate-50 p-2.5 rounded-xl flex items-center gap-2 border border-slate-100">
                 <MapPin size={12} className="text-rose-500 shrink-0"/>
                 <input className="text-[10px] font-bold outline-none w-full bg-transparent truncate" value={jobData.jobLocation} onChange={e => setJobData({...jobData, jobLocation: e.target.value})} />
@@ -261,7 +205,8 @@ export default function CreateJobPage() {
                 <Calendar size={12} className="text-emerald-500 shrink-0"/>
                 <input type="date" className="text-[10px] font-bold outline-none w-full bg-transparent" value={jobData.postedDate} onChange={e => setJobData({...jobData, postedDate: e.target.value})} />
             </div>
-        </div>
+          </div>
+        </section>
       </main>
 
       <header className="p-4 border-b bg-slate-50/80 flex justify-between items-center shrink-0">
