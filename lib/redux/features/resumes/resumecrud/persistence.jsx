@@ -20,7 +20,6 @@ export default function ResumesPersistence() {
     if (resumes.allResumes.length > 0) {
       localStorage.setItem("jxh_resumes", JSON.stringify(resumes));
     }
-    
   }, [resumes]);
 
   return null;

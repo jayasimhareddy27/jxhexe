@@ -14,11 +14,8 @@ export const handleFetchResumesFulfilled = (state, action) => {
   state.loading = "succeeded";
   state.allResumes = action.payload.resumes;
   state.primaryResumeId = action.payload.primaryResumeId;
-
-  if (action.payload.references) {
-    state.aiResumeRef = action.payload.references.aiResumeRef;
-    state.myProfileRef = action.payload.references.myProfileRef;
-  }
+  state.aiResumeRef = action.payload.aiResumeRef;
+  state.myProfileRef = action.payload.myProfileRef;
 };
 
 export const handleCreateResumeFulfilled = (state, action) => {

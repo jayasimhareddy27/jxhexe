@@ -1,54 +1,85 @@
 "use client";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useDispatch, useSelector, shallowEqual } from "react-redux";
-import { createJob } from "../../../lib/redux/features/job/thunks";
-import { sanitizeJobData } from "../../../lib/redux/features/job/index"; 
-import { displayToast } from "../../../lib/redux/features/toast/thunks";
-import { executeJobDiscovery } from "../jobextractionutils/jobservice";
-import { lazyDescriptionExtractor, analyzeJobInsights } from "../jobextractionutils/utils"; 
-import { 
-  Save, Loader2, MapPin, DollarSign, ClipboardList, RefreshCw, 
-  Square, Zap, Info, Calendar, Briefcase, Star, FileText, Wand2, Target, BookmarkCheck
-} from "lucide-react";
-import { fetchCoverletters } from "../../../lib/redux/features/coverletter/coverlettercrud/thunks";
-import { fetchResumes, returnuseReference } from "../../../lib/redux/features/resumes/resumecrud/thunks";
-
-
+import { createJob } from "../../../../lib/redux/features/job/thunks";
+import { sanitizeJobData } from "../../../../lib/redux/features/job/index"; 
+import { displayToast } from "../../../../lib/redux/features/toast/thunks";
+import { executeJobDiscovery } from "../../jobextractionutils/jobservice";
+import { lazyDescriptionExtractor, analyzeJobInsights } from "../../jobextractionutils/utils"; 
+import { Save, Loader2, MapPin, DollarSign, ClipboardList, RefreshCw, Square, Zap, Info, Calendar, Briefcase, Star, FileText, Wand2, Target, BookmarkCheck} from "lucide-react";
+import { fetchCoverletters } from "../../../../lib/redux/features/coverletter/coverlettercrud/thunks";
+import { fetchResumes } from "../../../../lib/redux/features/resumes/resumecrud/thunks";
+import { fetchDocumentById } from "../../../../lib/redux/features/editor/thunks";
+import { INITIAL_JOB_STATE } from "./utils";
+import { generatecoverletterfromjobdata } from "../../../components/generate/coverletter/generatecoverletterfromjobdata";
+import { generateresumefromjobdata } from "../../../components/generate/resume/generateresumefromjobdata";
 
 export default function CreateJobPage() {
   const dispatch = useDispatch();
   const hasInitialized = useRef(false);
   const abortControllerRef = useRef(null);
 
-  // --- REDUX DATA (From your Inspector logic) ---
-  const { allResumes = [],myProfileRef } = useSelector((state) => state.resumecrud || {});
-  const { allCoverletters = [] } = useSelector((state) => state.coverlettercrud || {});
-  const { loading, aiAgent } = useSelector((state) => ({  loading: state.jobsStore.loading,  aiAgent: state.aiAgent }), shallowEqual);
-  
+  // --- REDUX DATA ---
+  const { allResumes, myProfileRef, allCoverletters, loading, aiAgent } = useSelector((state) => ({
+    allResumes: state.resumecrud?.allResumes || [],
+    myProfileRef: state.resumecrud?.myProfileRef,
+    allCoverletters: state.coverlettercrud?.allCoverletters || [],
+    loading: state.jobsStore.loading, aiAgent: state.aiAgent
+    }), shallowEqual);
   // --- UI & EXTRACTION STATE ---
   const [isExtracting, setIsExtracting] = useState(false);
   const [isLazyLoading, setIsLazyLoading] = useState(false);
   const [flashDeepData, setFlashDeepData] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [aiStatus, setAiStatus] = useState({ active: false, message: "" });
 
-  // --- JOB DATA STATE ---
-  const [jobData, setJobData] = useState({
-    companyName: "", position: "", rawDescription: "", aiDescription: "", stage: "saved", 
-    seniorityLevel: "", jobType: "Not Mentioned", 
-    requirements: [], perks: [], businessModel: "Not Mentioned", companyInsights: "",
-    minSalary: "", maxSalary: "", currency: "USD", period: "yearly",
-    jobUrl: "", jobLocation: "", postedDate: new Date().toISOString().split('T')[0],
-    resumeId: "", coverLetterId: "", resumeMatchScore: 82 // Mock score or initial calc
+  const [jobData, setJobData] = useState(() => {
+    if (typeof window !== "undefined") {
+      const savedResume = sessionStorage.getItem("selected_resume_id");
+      const savedCL = sessionStorage.getItem("selected_cl_id");
+      return {   ...INITIAL_JOB_STATE,   resumeId: savedResume || "",   coverLetterId: savedCL || "" };
+    }
+    return INITIAL_JOB_STATE;
   });
-
-  
   useEffect(() => {
-    dispatch(fetchCoverletters());
-    dispatch(fetchResumes());
-    
+    sessionStorage.setItem("selected_resume_id", jobData.resumeId);
+    sessionStorage.setItem("selected_cl_id", jobData.coverLetterId);
+  }, [jobData.resumeId, jobData.coverLetterId]);
+
+  const refreshAllData = useCallback(async () => {
+    try {
+      setIsSyncing(true);
+      // Re-fetch all document lists
+      await Promise.all([
+        dispatch(fetchCoverletters()).unwrap(),
+        dispatch(fetchResumes()).unwrap()
+      ]);
+
+      dispatch(displayToast({ message: "Cloud Data Synced", type: 'success' }));
+    } catch (error) {
+      dispatch(displayToast({ message: "Sync failed", type: 'error' }));
+    } finally {
+      setIsSyncing(false);
+    }
   }, [dispatch]);
-  console.log(myProfileRef);
-  
-  // Handlers
+
+  // 2. Initial Data Load
+  useEffect(() => {
+    refreshAllData();
+  }, []);
+
+  // 3. Document Content Fetching (when myProfileRef is discovered/updated)
+  useEffect(() => {
+    if (myProfileRef) {
+      dispatch(fetchDocumentById({ id: myProfileRef , type: 'resume' }));
+      // Auto-select the primary resume if nothing is selected yet
+      if (!jobData.resumeId) {
+        setJobData(prev => ({ ...prev, resumeId: myProfileRef }));
+      }
+    }
+  }, [dispatch, myProfileRef]);
+
+  // AI Pipeline Logic
   const handleStop = () => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -71,7 +102,8 @@ export default function CreateJobPage() {
       const payload = await executeJobDiscovery(tab);
       if (signal.aborted) return;
       const sanitized = sanitizeJobData(payload);
-      setJobData(prev => ({ ...prev, ...sanitized }));
+
+      setJobData(prev => ({ ...prev, ...sanitized, resumeId: prev.resumeId }));
       setIsExtracting(false);
 
       setIsLazyLoading(true);
@@ -115,8 +147,16 @@ export default function CreateJobPage() {
   const handleSubmit = async (e) => {
     if (e) e.preventDefault(); 
     const { minSalary, maxSalary, currency, period, ...restOfJobData } = jobData;
+    const salary = (minSalary && maxSalary) ? (`${minSalary}-${maxSalary} ${currency}/${period}`) : (minSalary ? (`${minSalary} ${currency}/${period}`) : maxSalary ? (`Up to ${maxSalary} ${currency}/${period}`) : "Not Mentioned");
     try {
-      await dispatch(createJob(restOfJobData)).unwrap();
+        const finalPayload = {
+        ...restOfJobData,
+        salary,
+        resumeId: restOfJobData.resumeId || null,
+        coverLetterId: restOfJobData.coverLetterId || null
+        };
+        
+      await dispatch(createJob(finalPayload)).unwrap();
       dispatch(displayToast({ message: `Saved Successfully!`, type: 'success' }));
       setTimeout(() => window.close(), 1000); 
     } catch (error) {
@@ -126,6 +166,42 @@ export default function CreateJobPage() {
 
   const isAnyLoading = isExtracting || isLazyLoading;
 
+  const handleTailorResume = async () => {
+    if (!jobData.resumeId) {
+      dispatch(displayToast({ message: "Select a resume first", type: 'info' }));
+      return;
+    }
+    setAiStatus({ active: true, message: "Generating Tailored Resume Data..." });
+    try {
+      const selectedResume = allResumes.find(r => r._id === jobData.resumeId);
+      const result = await generateresumefromjobdata(jobData, selectedResume)(); 
+      if (result) {
+        console.log("📂 TAILORED RESUME JSON:", result);
+        dispatch(displayToast({ message: "Resume data logged to console", type: 'success' }));
+      }
+    } catch (err) {
+      console.error("AI Resume Error:", err);
+      dispatch(displayToast({ message: "Tailoring failed", type: 'error' }));
+    } finally {
+      setAiStatus({ active: false, message: "" });
+    }
+  };
+
+  const handleTailorCoverLetter = async () => {
+    setAiStatus({ active: true, message: "Generating Tailored Cover Letter..." });
+    try {
+      const generateTask = generatecoverletterfromjobdata(jobData);
+      const result = await generateTask();
+      
+      console.log("✉️ TAILORED COVER LETTER JSON:", result);
+      dispatch(displayToast({ message: "Cover letter logged to console", type: 'success' }));
+    } catch (err) {
+      console.error("AI Cover Letter Error:", err);
+      dispatch(displayToast({ message: "Generation failed", type: 'error' }));
+    } finally {
+      setAiStatus({ active: false, message: "" });
+    }
+  };
   return (
     <div className="h-full flex flex-col bg-white overflow-hidden text-slate-900 shadow-xl border-x border-slate-200">
       <main className="flex-1 overflow-y-auto p-4 space-y-5 pb-20 custom-scrollbar">
@@ -145,16 +221,26 @@ export default function CreateJobPage() {
           </div>
         </section>
 
-        {/* DOCUMENT SELECTION (From Inspector) */}
+        {/* DOCUMENT SELECTION */}
         <section className="space-y-3">
-          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-             <BookmarkCheck size={12}/> Attach Documents
-          </label>
+          <div className="flex items-center justify-between">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+               <BookmarkCheck size={12}/> Attach Documents
+            </label>
+            <button 
+              onClick={refreshAllData}
+              className="group flex items-center gap-1 p-1 hover:bg-slate-100 rounded-md transition-colors text-slate-400 hover:text-indigo-600"
+              title="Sync with Website"
+            >
+              <span className="text-[8px] font-black">SYNC DATA</span>
+              <RefreshCw size={10} className={isSyncing ? "animate-spin text-indigo-600" : "group-hover:rotate-180 transition-transform duration-500"} />
+            </button>
+          </div>
           
           <div className="space-y-2">
             {/* Resume Dropdown */}
             <div className="flex gap-2">
-              <div className="flex-1 relative bg-slate-50 border border-slate-100 rounded-xl p-2 transition-all hover:border-indigo-200">
+              <div className="flex-1 relative bg-slate-50 border border-slate-100 rounded-xl p-2 transition-all hover:border-indigo-200 focus-within:ring-1 focus-within:ring-indigo-100">
                 <label className="text-[8px] font-black text-slate-400 block uppercase mb-1">Select Resume</label>
                 <select 
                   className="w-full text-[11px] font-bold outline-none bg-transparent text-slate-700 cursor-pointer"
@@ -162,17 +248,22 @@ export default function CreateJobPage() {
                   onChange={(e) => setJobData({...jobData, resumeId: e.target.value})}
                 >
                   <option value="">No Resume Linked</option>
-                  {allResumes.map(r => <option key={r._id} value={r._id}>{r.name}</option>)}
+                  {allResumes.map(r => (
+                    <option key={r._id} value={r._id}>
+                      {r.name} {r._id === myProfileRef ? "⭐️ (Primary)" : ""}
+                    </option>
+                  ))}
                 </select>
               </div>
-              <button className="px-3 bg-indigo-50 text-indigo-600 rounded-xl border border-indigo-100 flex items-center justify-center active:scale-90 transition-transform">
+              <button className="px-3 bg-indigo-50 text-indigo-600 rounded-xl border border-indigo-100 flex items-center justify-center active:scale-90 transition-transform" 
+                onClick={handleTailorResume}>
                 <Wand2 size={14} />
               </button>
             </div>
 
             {/* Cover Letter Dropdown */}
             <div className="flex gap-2">
-              <div className="flex-1 relative bg-slate-50 border border-slate-100 rounded-xl p-2 transition-all hover:border-indigo-200">
+              <div className="flex-1 relative bg-slate-50 border border-slate-100 rounded-xl p-2 transition-all hover:border-indigo-200 focus-within:ring-1 focus-within:ring-indigo-200">
                 <label className="text-[8px] font-black text-slate-400 block uppercase mb-1">Select Cover Letter</label>
                 <select 
                   className="w-full text-[11px] font-bold outline-none bg-transparent text-slate-700 cursor-pointer"
@@ -183,7 +274,9 @@ export default function CreateJobPage() {
                   {allCoverletters.map(c => <option key={c._id} value={c._id}>{c.name || c.title}</option>)}
                 </select>
               </div>
-              <button className="px-3 bg-slate-50 text-slate-600 rounded-xl border border-slate-100 flex items-center justify-center active:scale-90 transition-transform">
+              <button className="px-3 bg-slate-50 text-slate-600 rounded-xl border border-slate-100 flex items-center justify-center active:scale-90 transition-transform"
+                onClick={handleTailorCoverLetter}>
+                                
                 <FileText size={14} />
               </button>
             </div>
@@ -207,7 +300,7 @@ export default function CreateJobPage() {
             </div>
         </div>
 
-        {/* COMPENSATION */}
+        {/* COMPENSATION SECTION */}
         <section className="space-y-1.5">
           <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5"><DollarSign size={12}/> Compensation</label>
           <div className="grid grid-cols-4 gap-2">

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import ScrapeTab from '../tabs/scrapetab';
+import ScrapeTab from '../tabs/scrapetab/index';
 import AutoFillPanel from '../tabs/autofill';
 import ProfileTab from '../tabs/profiletab';
 import AIConnectionFloating from "../initialpages/aiconnection";
