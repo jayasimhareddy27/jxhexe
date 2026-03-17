@@ -18,7 +18,6 @@ Return ONLY a valid JSON object. NO explanations, NO comments, NO extra text.
 }
 
 **EXAMPLES:**
-Input: "Software Engineer at Google, Full-time, Senior, posted 2025-02-01"
 Output: {"companyName":"Google","position":"Software Engineer","jobLocation":"","salary":""}
 
 **Job text:**`

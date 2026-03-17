@@ -14,24 +14,24 @@ const geminiModels = [
 ];
 
 
-const Companyname= "JobxHunter";
-const Companylogo = "https://jobxhunter.com/logo.png";
+const Companyname= "JobxChaser";
+const Companylogo = "https://jobxchaser.com/logo.png";
 const Companyemail = "jayasimhareddy27@gmail.com"
 const Companyphone = "+1 4059569992";
-const Companyaddress = "3785 gabrielle lane, aurora, IL 60504";
-const Companydescription = "JobXHunter is a leading job portal connecting job seekers with top employers. We provide a platform for job listings, applications, and career resources to help individuals find their dream jobs.";
-const Companywebsite = "https://jobxhunter.com";
+const Companyaddress = "500 station blvd, aurora, IL 60504";
+const Companydescription = "JobXChaser is a leading job portal connecting job seekers with top employers. We provide a platform for job listings, applications, and career resources to help individuals find their dream jobs.";
+const Companywebsite = "https://jobxchaser.com";
 const Companybackend = "http://localhost:4000/api/";
 const Companysocials = {
-  facebook: "https://www.facebook.com/jobxhunter",
-  twitter: "https://twitter.com/jobxhunter",
-  linkedin: "https://www.linkedin.com/company/jobxhunter",
-  instagram: "https://www.instagram.com/jobxhunter",
+  facebook: "https://www.facebook.com/jobxchaser",
+  twitter: "https://twitter.com/jobxchaser",
+  linkedin: "https://www.linkedin.com/company/jobxchaser",
+  instagram: "https://www.instagram.com/jobxchaser",
 };
-const Companyterms = "https://jobxhunter.com/terms";
-const Companyprivacy = "https://jobxhunter.com/privacy";
-const Companyshortname = "JxH";
-const Companynameletters = ["J", "x", "H"];
+const Companyterms = "https://jobxchaser.com/terms";
+const Companyprivacy = "https://jobxchaser.com/privacy";
+const Companyshortname = "JxC";
+const Companynameletters = ["J", "x", "C"];
 const Companyadminid = "697638430080fc1241634262"
 
 export {

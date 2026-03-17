@@ -17,12 +17,3 @@ export const handleAuthFulfilled = (state, action) => {
   localStorage.setItem('token', action.payload.token);
 
 };
-
-export const handleUpdateAccountFulfilled = (state, action) => {
-  state.loading = 'succeeded';
-  state.error = null;
-  state.user = {
-    ...state.user,
-    ...action.payload,
-  };
-};

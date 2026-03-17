@@ -12,6 +12,7 @@ import CoverLetterPersistence from '../../lib/redux/features/coverletter/coverle
 import ToastPersistence from '../../lib/redux/features/toast/persistence.jsx';
 import ThemePersistence from '../../lib/redux/features/theme/persistence.jsx';
 import AIAgentPersistence from '../../lib/redux/features/aiagent/persistence.jsx';
+import ScraperPersistence from '../../lib/redux/features/scraper/persistence.jsx';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <ReduxProvider>
@@ -21,6 +22,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <ToastPersistence/>
     <ThemePersistence />
     <AIAgentPersistence />
+    <ScraperPersistence />
     <App />
   </ReduxProvider>
 )

@@ -1,33 +1,29 @@
 "use client";
 
-import { useSelector } from 'react-redux';
+import { useSelector } from "react-redux";
 
-// Rename the component to ToastHandler
-export default function ToastPersistence() { 
+export default function ToastPersistence() {
   const { message, type, visible } = useSelector((state) => state.toast);
-
-  const typeStyles = {
-    success: 'bg-green-600',
-    error: 'bg-red-600',
-    info: 'bg-[color:var(--color-cta-bg)]',
-  };
 
   if (!visible || !message) return null;
 
+  let background = "#1f2937"; 
+  let icon = "ℹ️";
+
+  if (type === "success") {
+    background = "#059669";
+    icon = "✅";
+  }
+
+  if (type === "error") {
+    background = "#e11d48";
+    icon = "⚠️";
+  }
+
   return (
-    <div
-      className={`
-        fixed bottom-4 left-1/2 transform -translate-x-1/2
-        text-white
-        px-5 py-3 rounded-md shadow-lg z-50
-        font-medium text-sm select-none
-        ring-2 ring-[color:var(--color-button-primary-hover-bg)]
-        ${typeStyles[type]}
-      `}
-      role="alert"
-      aria-live="assertive"
-    >
-      {type === "error" ? "⚠️ " : "✅ "} {message}
+    <div style={{  position: "fixed",  bottom: "40px",  left: "50%",  transform: "translateX(-50%)",  background: background,  color: "white",  padding: "12px 20px",  borderRadius: "8px",  zIndex: 999999,  display: "flex",  alignItems: "center",  gap: "8px",  boxShadow: "0 10px 20px rgba(0,0,0,0.25)"}} role="alert" aria-live="assertive">
+      <span style={{ fontSize: "18px" }}>{icon}</span>
+      <span style={{ fontWeight: 500 }}>{message}</span>
     </div>
   );
 }

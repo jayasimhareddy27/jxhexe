@@ -3,9 +3,6 @@ import { initialState } from './state';
 import { 
   fetchCoverletters, 
   createCoverletter, 
-  deleteCoverletter, 
-  copyCoverletter, 
-  markPrimaryCoverletterTemplate 
 } from './thunks';
 
 const coverlettercrudSlice = createSlice({
@@ -51,39 +48,6 @@ const coverlettercrudSlice = createSlice({
         state.loading = 'failed';
         state.error = action.payload;
       })
-
-      /* --- DELETE --- */
-      .addCase(deleteCoverletter.pending, (state) => {
-        state.loading = 'loading';
-      })
-      .addCase(deleteCoverletter.fulfilled, (state, action) => {
-        state.loading = 'succeeded';
-        state.allCoverletters = state.allCoverletters.filter(
-          (cl) => cl._id !== action.payload
-        );
-      })
-      .addCase(deleteCoverletter.rejected, (state, action) => {
-        state.loading = 'failed';
-        state.error = action.payload;
-      })
-
-      /* --- COPY --- */
-      .addCase(copyCoverletter.pending, (state) => {
-        state.loading = 'loading';
-      })
-      .addCase(copyCoverletter.fulfilled, (state, action) => {
-        state.loading = 'succeeded';
-        state.allCoverletters.push(action.payload);
-      })
-      .addCase(copyCoverletter.rejected, (state, action) => {
-        state.loading = 'failed';
-        state.error = action.payload;
-      })
-
-      /* --- MARK PRIMARY --- */
-      .addCase(markPrimaryCoverletterTemplate.fulfilled, (state, action) => {
-        state.favCoverletterTemplateId = action.payload;
-      });
   },
 });
 

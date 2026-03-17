@@ -18,31 +18,6 @@ export const handleFetchResumesFulfilled = (state, action) => {
   state.myProfileRef = action.payload.myProfileRef;
 };
 
-export const handleCreateResumeFulfilled = (state, action) => {
-  state.loading = "succeeded";
-  state.allResumes.push(action.payload);
-};
-
-
-export const handleMakePrimaryFulfilled = (state, action) => {
-  state.loading = "succeeded";
-  state.primaryResumeId = action.payload;
-};
-
-export const handleMarkAIPrimaryFulfilled = (state, action) => {
-  state.loading = "succeeded";
-  state.aiResumeRef = action.payload;
-};
-
-export const handleMarkProfileFulfilled = (state, action) => {
-  state.loading = "succeeded";
-  state.myProfileRef = action.payload;
-};
-
-export const handleMarkPrimaryResumeTemplateFulfilled = (state, action) => {
-  state.loading = "succeeded";
-  state.favResumeTemplateId = action.payload;
-};
 
 export const handleReturnUseReferenceFulfilled = (state, action) => {
   state.loading = "succeeded";

@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import Loading from '../components/initialpages/loading';
-import Login from '../components/initialpages/login';
-import Homepage from '../components/initialpages/home';
+import Loading from '../../public/components/loadingutils/loading';
+import Login from './initialpages/login';
+import Homepage from './initialpages/home';
 
 export default function App() {
   const { user, loading } = useSelector((state) => state.auth);

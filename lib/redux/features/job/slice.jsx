@@ -1,7 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { initialJobState } from "./state";
 import {
-  fetchJobs,
   createJob,
   fetchJobById,
   updateJob,
@@ -20,28 +19,6 @@ const jobSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-
-      /* ===============================
-         FETCH ALL JOBS
-      =============================== */
-      .addCase(fetchJobs.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchJobs.fulfilled, (state, action) => {
-        state.loading = false;
-
-        if (action.meta.arg === "market") {
-          state.marketListing = action.payload;
-        } else {
-          state.trackerListing = action.payload;
-          state.trackerListing = action.payload;
-        }
-      })
-      .addCase(fetchJobs.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
 
       /* ===============================
          FETCH SINGLE JOB

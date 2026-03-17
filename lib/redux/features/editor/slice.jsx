@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { initialState } from './state';
-import {  fetchDocumentById, saveDocumentById } from './thunks';
+import {  fetchAIdataforDocument,fetchDocumentById, saveDocumentById } from './thunks';
 import { clExtractionPhases } from '../../../../public/staticfiles/prompts/coverletter/index'; // CL Config
 import { resumeextractionPhases} from '../../../../public/staticfiles/prompts/resume/index'; // CV Config
 

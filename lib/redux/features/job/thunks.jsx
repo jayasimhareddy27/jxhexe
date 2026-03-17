@@ -1,78 +1,8 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { displayToast } from "../toast/thunks";
-import { fetchJobPhaseData } from "./";
-import { BackendURL } from "../../../utils";
+import { extractJobPhase } from "./";
+import { Companybackend } from '../../../../src/globalvar/companydetails';
 
-/* =====================================================
-    AI EXTRACTION
-===================================================== */
-export const fetchAIdata_job = createAsyncThunk(
-  "jobs/fetchAIdata_job",
-  async (
-    { phase, jobDescription },
-    { dispatch, rejectWithValue }
-  ) => {
-    try {
-      if (!jobDescription) {
-        throw new Error("Please paste a job description first");
-      }
-
-      const data = await fetchJobPhaseData(
-        phase.id,
-        phase.key,
-        jobDescription,
-        !!phase.arrayFieldKey
-      );
-
-      dispatch(
-        displayToast({
-          message: `Extracted ${phase.title} successfully`,
-          type: "success",
-        })
-      );
-
-      return {
-        phaseKey: phase.key,
-        data,
-      };
-    } catch (error) {
-      dispatch(
-        displayToast({
-          message: `AI Extraction failed at ${phase.title}: ${error.message}, `,
-          type: "error",
-        })
-      );
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
-/* =====================================================
-    FETCH ALL JOBS
-===================================================== */
-export const fetchJobs = createAsyncThunk(
-  "jobs/fetchAll",
-  async (mode, { dispatch, getState, rejectWithValue }) => {
-    try {
-      const token = getState().auth.token;
-
-      const response = await fetch(`/api/jobs?mode=${mode}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch jobs");
-      }
-
-      const data = await response.json();
-      // Ensure we return the array. Adjust according to your API structure.
-      return data.jobs || data; 
-    } catch (error) {
-      dispatch(displayToast({ message: error.message, type: "error" }));
-      return rejectWithValue(error.message);
-    }
-  }
-);
 
 /* =====================================================
     CREATE JOB
@@ -83,7 +13,7 @@ export const createJob = createAsyncThunk(
     try {
       const token = getState().auth.token;
 
-      const response = await fetch(`${BackendURL}/api/jobs`, {
+      const response = await fetch(`${Companybackend}jobs`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

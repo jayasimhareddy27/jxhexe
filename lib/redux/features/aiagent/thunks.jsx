@@ -7,10 +7,7 @@ export const connectAiAgent = createAsyncThunk(
   'aiAgent/connect',
   async (_, { rejectWithValue }) => {
     try {
-      const model = new ChromeAI({
-        temperature: 0.5,
-        topK: 40,
-      });
+      const model = new ChromeAI({  temperature: 0.5,  topK: 40,});
 
       const testResponse = await model.invoke('return the number 4 only');
       if (!testResponse) {

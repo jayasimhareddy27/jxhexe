@@ -68,87 +68,93 @@ Use MM-DD-YYYY. Set null if missing.
 
 Resume text:`
   },
-  workExperience: {
+
+workExperience: {
     id: 4,
     key: 'workExperience',
     title: 'Work Experience',
     arrayFieldKey: true,
     fields: ['companyName', 'jobTitle', 'responsibilities', 'location', 'startDate', 'endDate'],
-    initial: [ {companyName:'', jobTitle:'', responsibilities:'', location:'', startDate:'', endDate:''}],
+    initial: [{ companyName: '', jobTitle: '', responsibilities: '', location: '', startDate: '', endDate: '' }],
+    prompt: `Optimize work history for high ATS ranking. 
+1. Mirror terminology: Use keywords and action verbs found in the provided Job Description.
+2. Quantify: Where possible, include metrics or results from the Resume text.
+3. Formatting: Rewrite 'responsibilities' as a list of 3-5 high-impact bullet points.
+4. Output: Return ONLY a JSON array. 'responsibilities' MUST be a single string with "\\n" for newlines.
 
-    prompt: `Extract work experience.
-Return as JSON array, donot wrap the content in ''' or any other characters or donot add comments or explanation or donot skip a field every field is important:
 [ 
   {
     "companyName": "",
     "jobTitle": "",
-    "responsibilities": "",
+    "responsibilities": "Bullet 1\\nBullet 2\\nBullet 3",
     "location": "",
     "startDate": "MM-DD-YYYY",
     "endDate": "MM-DD-YYYY"
   }
 ]
-Use MM-DD-YYYY. Set null if missing.
 
 Resume text:`
   },
+
   projects: {
     id: 5,
     key: 'projects',
     title: 'Projects',
     arrayFieldKey: true,
     fields: ['projectName', 'projectDescription', 'technologiesUsed', 'startDate', 'endDate', 'projectLink'],
-    initial: [ {projectName:'', projectDescription:'', technologiesUsed:'', startDate:'', endDate:'', projectLink:''}],
+    initial: [{ projectName: '', projectDescription: '', technologiesUsed: '', startDate: '', endDate: '', projectLink: '' }],
+    prompt: `Tailor project descriptions to match the Job Description requirements.
+1. High-Density Keywords: Integrate technical skills mentioned in the JD into the projectDescription and technologiesUsed.
+2. Description: Use bullet points (split by "\\n") highlighting specific contributions.
+3. technologiesUsed: List as a comma-separated string.
+4. Output: Return ONLY a JSON array.
 
-    prompt: `Extract projects.
-Return as JSON array, donot wrap the content in ''' or any other characters or donot add comments or explanation or donot skip a field every field is important:
 [ 
-  
   {
     "projectName": "",
-    "projectDescription": "",
-    "technologiesUsed": "",
+    "projectDescription": "Achievement 1\\nAchievement 2",
+    "technologiesUsed": "keyword1, keyword2",
     "startDate": "MM-DD-YYYY",
     "endDate": "MM-DD-YYYY",
     "projectLink": ""
   }
 ]
-Make sure you can give as much as projectDescription as possible using the information and "technologiesUsed" is comma-separated. Set null if missing.
 
 Resume text:`
   },
 
-//Not array
   skillsSummary: {
     id: 6,
     key: 'skillsSummary',
     title: 'Skills Summary',
-    fields: ['technicalSkills', 'tools', 'softSkills', 'languagesSpoken', 'certificationsSkills' ],
+    fields: ['technicalSkills', 'tools', 'softSkills', 'languagesSpoken', 'certificationsSkills'],
     initial: { technicalSkills: '', tools: '', softSkills: '', languagesSpoken: '', certificationsSkills: '' },
-    prompt: `Extract skills.
-Return as JSON, donot wrap the content in ''' or any other characters or donot add comments or explanation:
+    prompt: `Extract and optimize skills for ATS compatibility by mirroring the Job Description.
+1. Match Keywords: Scan the JD and identify required tech stack and tools. 
+2. Validate: Only include skills if they are present in either the Resume or the JD (do not invent experience).
+3. Formatting: Use exact phrasing from the JD (e.g., use "React.js" instead of "React" if that's what the JD uses). 
+4. Output: Return ONLY valid JSON. All fields must be comma-separated strings.
+
 { 
-  "technicalSkills": "",
-  "tools": "",
-  "softSkills": "",
+  "technicalSkills": "languages, frameworks, and core technical concepts",
+  "tools": "software, platforms, and methodologies",
+  "softSkills": "interpersonal skills and leadership traits",
   "languagesSpoken": "",
   "certificationsSkills": ""
 }
-Use comma-separated strings. Set null if missing.
 
-Resume text:`
+Job Description:`
   },
 
-//array
   certifications: {
     id: 7,
     key: 'certifications',
     title: 'Certifications',
     arrayFieldKey: true,
     fields: ['certificationName', 'issuer', 'credentialURL'],
-    initial: [ {certificationName:'', issuer:'', credentialURL: ''}],
-    prompt: `Extract certifications.
-Return as JSON array, donot wrap the content in ''' or any other characters or donot add comments or explanation or donot skip a field every field is important:
+    initial: [{ certificationName: '', issuer: '', credentialURL: '' }],
+    prompt: `Extract certifications from the resume. 
+Return ONLY a JSON array. 
 [ 
   {
     "certificationName": "",
@@ -161,25 +167,27 @@ Set null if missing.
 Resume text:`
   },
 
-//Not array
   careerSummary: {
     id: 8,
     key: 'careerSummary',
     title: 'Career Summary',
     arrayFieldKey: false,
-    fields: ['summary', 'summaryGenerated', ],
-    initial: { summary: '', summaryGenerated: '', },
-    prompt: `Extract career summary.
-Return as JSON, donot wrap the content in ''' or any other characters or donot add comments or explanation:
+    fields: ['summary', 'summaryGenerated'],
+    initial: { summary: '', summaryGenerated: '' },
+    prompt: `Draft a professional summary (3-4 sentences) optimized for ATS.
+1. Format: [Current Job Title] with [X] years of experience in [Key Industry/Domain].
+2. Alignment: Explicitly bridge the user's past experience with the top 3 requirements of the Job Description.
+3. Buzzwords: Use high-scoring keywords found in the JD.
+4. Tone: Professional and result-oriented. Avoid generic fluff.
+5. Output: Return ONLY valid JSON.
+
 {
   "summary": "",
-  "summaryGenerated": ""
+  "summaryGenerated": "true"
 }
-If Summary already exists then always make sure to set summary to existing summary and donot miss any information. Set summaryGenerated to null if unavailable.
 
-Resume text:`
-  },
-
+Resume and Job Description:`
+  }
 };
 
 // Exports
