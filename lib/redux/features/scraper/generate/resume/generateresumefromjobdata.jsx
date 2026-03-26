@@ -1,32 +1,14 @@
-import { Companybackend } from "../../../../../../src/globalvar/companydetails";
-import { fetchfromai } from "../../../../../../public/components/ai/llmapi";
 import { resumeformatPrompts } from "../../../../../../public/staticfiles/prompts/resume/schema";
 import { convertResumeToPromptString } from ".";
+import { updatePhase } from "../../../editor/slice";
+import { saveDocumentById } from "../../../editor/thunks";
+import { fetchfromai } from "../../../../../../public/components/ai/llmapi";
 
-export const generateresumefromjobdata = (sectionIds, jobData, currentResume, copyTargetId, onProgress, dispatch, displayToast, signal) => async () => {
-  const tailoredResult = {};
+export const generateresumefromjobdata = (aiAgent,sectionIds, jobData, currentResume,  onProgress, dispatch, displayToast, signal) => async () => {
   const token = localStorage.getItem("token");
-  
+  const { apiKey, agent, provider} =aiAgent
   try {
-    let baseResume = currentResume;
-
-    // CASE 1: Full Document from scratch (Copy existing)
-    // We still copy here because we need a valid _id for the new document
-    if (copyTargetId) {
-      if (onProgress) onProgress("Creating resume copy...");
-      const copyResponse = await fetch(`${Companybackend}resume/copy`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          resumeId: copyTargetId, 
-          newName: `${jobData.companyName}_${jobData.position}` 
-        }),
-        signal
-      });
-      if (!copyResponse.ok) throw new Error("Failed to copy resume");
-      const data = await copyResponse.json();
-      baseResume = data.newResume;
-    }
+    let baseResume = currentResume ? structuredClone(currentResume) : {};    
 
     // CASE 2: Generate AI tailoring for sections
     for (const id of sectionIds) {
@@ -37,16 +19,19 @@ export const generateresumefromjobdata = (sectionIds, jobData, currentResume, co
       if (onProgress) onProgress(`Tailoring ${config.title}...`);
       const prompt = `${config.prompt} ${convertResumeToPromptString(baseResume)} JobDescription: ${jobData?.rawDescription}`;
       
-      const response = await fetchfromai(prompt, 1000);
+      const response = await fetchfromai(prompt,apiKey, agent, provider, 1000);
       const cleanJson = response.replace(/```json|```/g, "").trim();
-      tailoredResult[config.key] = JSON.parse(cleanJson);
-    }
+      const parsedData = JSON.parse(cleanJson);
 
+      dispatch(updatePhase({   phaseKey: config.key,   data: parsedData }));
+      dispatch(saveDocumentById());
+      
+      baseResume[config.key] = parsedData;
+    }
+    
     // Return the merged draft WITHOUT saving to DB
     return { 
       ...baseResume, 
-      ...tailoredResult,
-      designConfig: baseResume.designConfig || currentResume.designConfig 
     };
 
   } catch (error) {

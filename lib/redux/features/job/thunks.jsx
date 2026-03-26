@@ -1,6 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { displayToast } from "../toast/thunks";
-import { extractJobPhase } from "./";
 import { Companybackend } from '../../../../src/globalvar/companydetails';
 
 

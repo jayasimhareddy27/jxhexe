@@ -126,6 +126,7 @@ export default function ScrapeTab() {
       <div className="p-4 space-y-5 pb-40 custom-scrollbar overflow-y-auto">
         <Scrapedjobheader 
           jobData={jobData} 
+          dispatch={dispatch}
           isAnyLoading={isAnyLoading} 
           flashDeepData={flashDeepData} 
           isLazyLoading={isLazyLoading} 

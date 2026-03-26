@@ -1,11 +1,11 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { displayToast } from "../toast/thunks";
 import { Companybackend } from "../../../../src/globalvar/companydetails";
-import { setAiStatus, updateJobData ,setIsTailoringResume} from "../scraper/slice";
+import { setAiStatus, updateJobData ,setIsTailoringResume,setIsGeneratingCoverLetter} from "../scraper/slice";
 import { generateresumefromjobdata } from "../scraper/generate/resume/generateresumefromjobdata";
 import { fetchResumes } from "../resumes/resumecrud/thunks";
-import { updatePhase } from "./slice";
-
+import { generatecoverletterfromjobdata } from "../scraper/generate/coverletter/generatecoverletterfromjobdata";
+import { fetchCoverletters } from "../coverletter/coverlettercrud/thunks";
 
 /* ================================
    FETCH DOCUMENT BY ID (CV or CL)
@@ -71,45 +71,46 @@ export const saveDocumentById = createAsyncThunk(
 
 export const fetchAIdataforDocument = createAsyncThunk(
   "editor/fetchAIdata",
-  async ({ type, sectionIds, token, phase, signal }, { dispatch, getState, rejectWithValue }) => {
+  async ({ type, sectionIds, signal }, { dispatch, getState, rejectWithValue }) => {
     try {
       const { jobData } = getState().scraper;
-      const { allResumes, primaryResumeId } = getState().resumecrud;
+      const aiAgent = getState().aiAgent;
 
-      const isFullTailor = phase.key === "full_tailor";
       dispatch(setIsTailoringResume(true));
       const updateProgress = (msg) => dispatch(setAiStatus({ active: true, message: msg }));
 
-      const selectedResume = allResumes.find(r => r._id === jobData.resumeId);
-      const copyTargetId = isFullTailor ? (selectedResume?._id || primaryResumeId) : null;
+      if (type === "resume") {
+        dispatch(setIsTailoringResume(true));
+      } else {
+        dispatch(setIsGeneratingCoverLetter(true));
+      }
 
-      const generateTask = generateresumefromjobdata(
-        sectionIds, jobData, selectedResume || {}, 
-        copyTargetId, updateProgress, dispatch, displayToast, signal
-      );
+      let generateTask;
+
+      const { allResumes } = getState().resumecrud;
+      let selectedResume = allResumes.find(r => r._id === jobData.resumeId);
+      if (type === "resume") {
+        generateTask = generateresumefromjobdata(  aiAgent,sectionIds, jobData, selectedResume, updateProgress, dispatch, displayToast, signal);
+      }else{
+        const { allCoverletters } = getState().coverlettercrud;
+        const selectedCL = allCoverletters.find(cl => cl._id === jobData.coverLetterId);
+        generateTask = generatecoverletterfromjobdata(aiAgent, sectionIds, jobData, selectedCL, selectedResume,updateProgress, dispatch, displayToast, signal);
+      }
+
 
       const result = await generateTask();
 
-      if (result) {
-        if (isFullTailor) {
-          // CASE 1: Full Document - We update the activeId and sync the whole map
-          dispatch(updateJobData({ resumeId: result._id }));
-          dispatch(fetchResumes());
-          
-          // You could add a specific 'setFullDocument' reducer or loop through:
-          dispatch(fetchDocumentById({ id: result._id, type: "resume" }));
-        } else {
-          // CASE 2: Single Phase - Use your existing updatePhase reducer!
-          // result[phase.key] matches your JSON structure (e.g., result['careerSummary'])
-          dispatch(updatePhase({ 
-            phaseKey: phase.key, 
-            data: result[phase.key] 
-          }));
-        }
-        
-        return result;
+      if (!result) {
+        return rejectWithValue("Failed to generate AI data");
       }
-      return rejectWithValue("Failed to generate AI data");
+      // 3. Post-Generation Refresh
+      if (type === "resume") {
+        await dispatch(fetchResumes()).unwrap();
+      } else {
+        await dispatch(fetchCoverletters()).unwrap();
+      }
+      dispatch(displayToast({   message: `New tailored ${type === "resume" ? "resume" : "cover letter"} created and selected!`,   type: "success" }));
+      return result;
     } catch (err) {
       return rejectWithValue(err.message);
     } finally {

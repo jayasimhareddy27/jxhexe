@@ -28,5 +28,6 @@ export const handleReturnUseReferenceFulfilled = (state, action) => {
     state.aiResumeRef = references.aiResumeRef || null;
     state.myProfileRef = references.myProfileRef || null;
     state.favResumeTemplateId = references.favResumeTemplateId || null;
+    state.aiKeys=references.aiKeys||[]
   }
 };

@@ -132,11 +132,11 @@ const ziprecruiterExtractor = (doc) => {
   };
 };
 
-const aiFallbackExtractor = async (doc) => {
+const aiFallbackExtractor = async (doc,aiAgent) => {
   doc.querySelectorAll("style, script, noscript").forEach(el => el.remove());
 
   const rawTextjobDescriptionxt = doc.body.textContent.replace(/\s+/g, " ").trim();;
-  const jobCoreData = await extractJobPhase(1, "jobCore", rawTextjobDescriptionxt);
+  const jobCoreData = await extractJobPhase(1, "jobCore",aiAgent, rawTextjobDescriptionxt,1000);
   
   return {
     companyName: jobCoreData?.companyName || "", 
@@ -147,25 +147,26 @@ const aiFallbackExtractor = async (doc) => {
   };
 };
 
-export const lazyDescriptionExtractor = async (tab) => {
+export const lazyDescriptionExtractor = async (tab,signal,aiAgent) => {
   const [{ result: html }] = await chrome.scripting.executeScript({target: { tabId: tab.id },func: () => document.body.innerText });
   const textContext = html.substring(0, 6000); 
-  const rewriteResult = await extractJobPhase(2, "jobDuties", textContext);
+  const rewriteResult = await extractJobPhase(2, "jobDuties",aiAgent, textContext,5000);
+  
   return rewriteResult?.aiDescription || textContext.substring(0, 2000);
 };
 
-export const analyzeJobInsights = async (tab) => {
+export const analyzeJobInsights = async (tab,signal,aiAgent) => {
   const [{ result: html }] = await chrome.scripting.executeScript({target: { tabId: tab.id },func: () => document.body.innerText });
   const textContext = html.substring(0, 6000); 
-  return await extractJobPhase(3, "deepInsights", textContext, 300); 
+  return await extractJobPhase(3, "deepInsights",aiAgent, textContext, 500); 
 };
 
-export const extractByUrl = (doc, url) => {
+export const extractByUrl = (doc, url,aiAgent) => {
   if (url.includes(SITE_CONFIGS.LINKEDIN.domain)) return linkedinExtractor(doc);
   if (url.includes(SITE_CONFIGS.INDEED.domain)) return indeedExtractor(doc);
   if (url.includes(SITE_CONFIGS.WORKDAY.domain)) return workdayExtractor(doc);
   if (url.includes(SITE_CONFIGS.GREENHOUSE.domain)) return greenhouseExtractor(doc);
   if (url.includes(SITE_CONFIGS.HANDSHAKE.domain)) return handshakeExtractor(doc);
   if (url.includes(SITE_CONFIGS.ZIPRECRUITER.domain)) return ziprecruiterExtractor(doc);  // ← added
-  return aiFallbackExtractor(doc);
+  return aiFallbackExtractor(doc,aiAgent);
 };

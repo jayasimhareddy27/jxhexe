@@ -9,7 +9,7 @@ import PhaseAccordion from "./phaseaccordion";
 import { resumeextractionPhases } from "../../staticfiles/prompts/resume/index";
 import {clExtractionPhases} from "../../staticfiles/prompts/coverletter/index";
 
-const DetailsTab = memo(({ type, expandedPhase, toggleAccordion, handleFetchFromAI, handleSave }) => {
+const DetailsTab = memo(({ type, expandedPhase, toggleAccordion, handleFetchFromAI }) => {
   const phaseRefs = useRef({});
 
   const { formDataMap, loading } = useSelector(  (state) => state.editor,  shallowEqual);
@@ -25,29 +25,17 @@ const DetailsTab = memo(({ type, expandedPhase, toggleAccordion, handleFetchFrom
     Phases = clExtractionPhases;
   }
   // --- Hidden Sections Summary ---
+  
   const hiddenSections = Phases.filter(p => visibility[p.key] === false);
-
   return (
     <div className="space-y-6 animate-in fade-in duration-500 pb-20">
       
-      {/* 1. Visibility Alert: Shows if any sections are currently hidden */}
-      {hiddenSections.length > 0 && (
-        <div className="p-3 rounded-xl bg-amber-50 border border-amber-100 flex items-start gap-3">
-          <AlertCircle size={16} className="text-amber-600 mt-0.5" />
-          <div>
-            <p className="text-[10px] font-bold text-amber-900 uppercase">Hidden Content</p>
-            <p className="text-[9px] text-amber-700 leading-tight">
-              {hiddenSections.length} sections are currently hidden from your {type} preview.
-            </p>
-          </div>
-        </div>
-      )}
+
 
       {/* 2. Content Sections (Accordions) */}
       <div className="space-y-3">
         {Phases.map((phase, index) => {
           const isSectionHidden = visibility[phase.key] === false;
-          
           return (
             <div 
               key={phase.key} 
@@ -78,14 +66,19 @@ const DetailsTab = memo(({ type, expandedPhase, toggleAccordion, handleFetchFrom
           );
         })}
       </div>
+      {/* 1. Visibility Alert: Shows if any sections are currently hidden */}
+      {hiddenSections.length > 0 && (
+        <div className="p-3 rounded-xl bg-amber-50 border border-amber-100 flex items-start gap-3">
+          <AlertCircle size={16} className="text-amber-600 mt-0.5" />
+          <div>
+            <p className="text-[10px] font-bold text-amber-900 uppercase">Hidden Content</p>
+            <p className="text-[9px] text-amber-700 leading-tight">
+              {hiddenSections.length} sections are currently hidden from your {type} preview.
+            </p>
+          </div>
+        </div>
+      )}
 
-      {/* 3. Global Action Footer */}
-      <div className="pt-4 border-t border-[var(--color-border-primary)] space-y-3">
-        
-        <p className="text-[9px] text-center text-[var(--color-text-placeholder)] font-medium italic">
-          Tip: Use "Fetch from AI" inside sections to auto-fill details.
-        </p>
-      </div>
     </div>
   );
 });

@@ -13,6 +13,9 @@ const geminiModels = [
   { label: 'Gemini Pro', value: 'gemini-pro' },
 ];
 
+const ollamaModels = [
+  { label: 'llama', value: 'llama' },
+];
 
 const Companyname= "JobxChaser";
 const Companylogo = "https://jobxchaser.com/logo.png";
@@ -20,7 +23,7 @@ const Companyemail = "jayasimhareddy27@gmail.com"
 const Companyphone = "+1 4059569992";
 const Companyaddress = "500 station blvd, aurora, IL 60504";
 const Companydescription = "JobXChaser is a leading job portal connecting job seekers with top employers. We provide a platform for job listings, applications, and career resources to help individuals find their dream jobs.";
-const Companywebsite = "https://jobxchaser.com";
+const Companywebsite = "http://localhost:4000/";
 const Companybackend = "http://localhost:4000/api/";
 const Companysocials = {
   facebook: "https://www.facebook.com/jobxchaser",
@@ -48,8 +51,10 @@ export {
   Companyprivacy,
   Companyshortname,
   Companynameletters,
+
   geminiModels,
   huggingFaceModels,
+  ollamaModels,
   
   Companyadminid
 

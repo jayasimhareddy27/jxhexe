@@ -1,15 +1,17 @@
 'use client'
+
 import { fetchfromai } from "../../../../public/components/ai/llmapi";
 import { jobPromptMap } from "../../../../public/staticfiles/prompts/jobdescription";
 
-export async function extractJobPhase(id, key, jobDescription,maxtokens=80) {
+export async function extractJobPhase(id, key,aiAgent, jobDescription,maxtokens=80) {
   const promptTemplate = jobPromptMap[id];
   
   if (!promptTemplate) throw new Error(`No job prompt template found for ID ${id} (Key: ${key})`);
   
   const prompt = `${promptTemplate}\n\n${jobDescription}`;
-  const rawResponse = await fetchfromai(prompt,maxtokens);
-  
+  const { provider, agent, apiKey } = aiAgent;
+
+  const rawResponse = await fetchfromai(prompt, apiKey, agent, provider, maxtokens);  
   // 3. Clean Markdown/Backticks
   const cleanedResponse = rawResponse.trim().replace(/^```json\s*/, '').replace(/^```/, '').replace(/```$/, '').trim();
   let data = JSON.parse(cleanedResponse);

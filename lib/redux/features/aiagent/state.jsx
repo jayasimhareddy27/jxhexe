@@ -1,5 +1,7 @@
 export const initialState = {
-  isReady: false,
-  loading: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
+  agent: null,
+  provider: null,
+  apiKey: null,
+  loading: 'idle',
   error: null,
 };

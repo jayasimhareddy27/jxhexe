@@ -6,6 +6,8 @@ export const initialState = {
   myProfileRef: null,
   
   favResumeTemplateId: null,
+  
+  aiKeys:[],
 
   loading: 'idle',
   error: null,
